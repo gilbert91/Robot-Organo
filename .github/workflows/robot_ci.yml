@@ -33,11 +33,9 @@ jobs:
           
       - name: Instalar Chrome e ChromeDriver
         run: |
-          # Instala Chrome
           wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt-get install -f -y
           
-          # Instala ChromeDriver compatível
           CHROME_MAJOR_VERSION=$(google-chrome --version | grep -oP '\d+' | head -1)
           echo "Chrome major version: $CHROME_MAJOR_VERSION"
           
@@ -64,23 +62,23 @@ jobs:
           # Salva o PID para possível cleanup
           echo $SERVER_PID > server.pid
           
-          # Aguarda o servidor ficar pronto (até 180 segundos)
-          echo "Aguardando servidor na porta 3001..."
-          for i in {1..90}; do
-            if curl -s -f http://localhost:3001 > /dev/null 2>&1; then
+          # Aguarda o servidor ficar pronto (até 60 segundos)
+          echo "Aguardando servidor na porta 3000..."
+          for i in {1..30}; do
+            if curl -s -f http://localhost:3000 > /dev/null 2>&1; then
               echo "✓ Servidor respondeu com sucesso após $((i*2)) segundos"
               break
             fi
             
-            if [ $i -eq 90 ]; then
-              echo "✗ ERRO: Servidor não iniciou após 180 segundos"
+            if [ $i -eq 30 ]; then
+              echo "✗ ERRO: Servidor não iniciou após 60 segundos"
               echo "=== Últimas 50 linhas do log do servidor ==="
               tail -n 50 server.log
               kill $SERVER_PID 2>/dev/null || true
               exit 1
             fi
             
-            echo "Tentativa $i/90 - Aguardando 2s..."
+            echo "Tentativa $i/30 - Aguardando 2s..."
             sleep 2
           done
           
@@ -96,7 +94,7 @@ jobs:
             exit 1
           fi
           
-          echo "✓ Servidor está rodando e estável"
+          echo "✓ Servidor está rodando e estável na porta 3000"
           
       - name: Instalar Dependências do Robot Framework
         run: |
