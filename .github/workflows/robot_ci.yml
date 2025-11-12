@@ -15,8 +15,13 @@ jobs:
       - name: Checkout do Código
         uses: actions/checkout@v4
         
-      - name: Configurar Python e Node.js
-        # Prepara o ambiente para rodar Python e Node.js/NPM
+      # --- PASSO NOVO: CONFIGURAR NODE.JS (CRUCIAL) ---
+      - name: Configurar Node.js (Para Aplicação Organo)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # Use uma versão LTS estável
+          
+      - name: Configurar Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
@@ -24,22 +29,18 @@ jobs:
       - name: Instalar Dependências da Aplicação (organo) e Iniciar o Servidor
         run: |
           echo "Acessando o diretório da aplicação e instalando Node/NPM..."
-          # Navega para a pasta da aplicação
           cd organo/
-          # Instala as dependências do projeto Node.js
           npm install
           
-          # Inicia o servidor Node.js em background (&) na porta 3000
+          # Tentativa de aumentar o tempo de espera para evitar CONNECTION_REFUSED
           npm start &
           
-          echo "Aguardando 20 segundos para o servidor iniciar completamente (CORRIGIDO PARA EVITAR ERR_CONNECTION_REFUSED)..."
-          # Tempo de espera aumentado para 60s
-          sleep 60s 
+          echo "Aguardando 30 segundos para o servidor iniciar completamente..."
+          sleep 30s # Aumentado para 30s como medida de segurança
 
       - name: Instalar Dependências do Robot Framework
         run: |
           python -m pip install --upgrade pip
-          # Instala o Robot Framework e o SeleniumLibrary
           pip install robotframework robotframework-seleniumlibrary robotframework-faker
           
       - name: Criar Diretório de Resultados
@@ -47,11 +48,9 @@ jobs:
 
       - name: Executar Testes Robot
         run: |
-          # O comando irá buscar 'preenchimento_correto.robot' e 'preenchimento_incorreto.robot'
-          # dentro da pasta './testes/'
           robot -d ./test_results ./testes/
         env:
-          BASE_URL: http://localhost:3000/
+          BASE_URL: http://localhost:3001/
 
       - name: Upload dos Artefatos (Relatórios)
         uses: actions/upload-artifact@v4
