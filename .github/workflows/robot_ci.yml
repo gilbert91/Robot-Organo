@@ -1,6 +1,6 @@
 name: Robot Framework CI/CD
 
-
+# Dispara o workflow em push e pull requests para as branches principais
 on:
   push:
     branches: [ master, develop ]
@@ -16,6 +16,7 @@ jobs:
         uses: actions/checkout@v4
         
       - name: Configurar Python e Node.js
+        # Prepara o ambiente para rodar Python e Node.js/NPM
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
@@ -31,9 +32,9 @@ jobs:
           # Inicia o servidor Node.js em background (&) na porta 3001
           npm start &
           
-          echo "Aguardando 10 segundos para o servidor iniciar completamente..."
-          # Tempo de espera para o servidor estabilizar (ajuste se necessário)
-          sleep 10s 
+          echo "Aguardando 20 segundos para o servidor iniciar completamente (CORRIGIDO PARA EVITAR ERR_CONNECTION_REFUSED)..."
+          # Tempo de espera aumentado para 20s
+          sleep 20s 
 
       - name: Instalar Dependências do Robot Framework
         run: |
