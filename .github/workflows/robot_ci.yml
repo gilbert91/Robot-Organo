@@ -29,13 +29,18 @@ jobs:
           echo "Acessando o diretório da aplicação e instalando Node/NPM..."
           cd organo/
           npm install
+
+          # 1. CORREÇÃO DE PROMPT (y/n)
+          # Adiciona a flag --yes para confirmar automaticamente a atualização do browserslist
+          echo "Atualizando browserslist para evitar o prompt de confirmação (y/n)..."
+          npx browserslist@latest --update-db --yes
           
           echo "Iniciando o servidor em background..."
           # Inicia o servidor React em background
           npm start &
 
-          # CORREÇÃO PRINCIPAL: Health Check Robusto
-          # Espera ativa e verifica a porta 3000. Timeout de 60s
+          # 2. CORREÇÃO DE CONEXÃO (ERR_CONNECTION_REFUSED)
+          # Health Check Robusto: Espera ativa e verifica a porta 3000 usando netcat (nc).
           echo "Aguardando o servidor ficar acessível na porta 3000 (máx 60s)..."
           timeout 60s bash -c 'while ! nc -z localhost 3000; do sleep 1; done'
           
@@ -44,7 +49,6 @@ jobs:
             exit 1
           fi
           echo "Servidor iniciado e porta 3000 acessível. Prosseguindo com os testes."
-          # O 'cd organo/' é revertido automaticamente quando este 'run' termina
           
       - name: Instalar Dependências do Robot Framework
         run: |
