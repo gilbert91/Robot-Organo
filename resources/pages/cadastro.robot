@@ -2,7 +2,7 @@
 Resource    ../main.robot
 
 *** Variables ***
-${URL}                    http://localhost:3001/
+${URL}                    http://localhost:3000/
 ${CAMPO_NOME}             id:form-nome
 ${CAMPO_CARGO}            id:form-cargo
 ${CAMPO_IMAGEM}           id:form-imagem

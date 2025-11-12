@@ -3,7 +3,7 @@ Resource    ../main.robot
 
 *** Variables ***
 ${BROWSER}                          headlesschrome
-${URL}                              http://localhost:3001
+${URL}                              http://localhost:3000
 
 *** Keywords ***
 Dado que eu acesse o organo
