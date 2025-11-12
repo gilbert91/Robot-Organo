@@ -30,11 +30,21 @@ jobs:
           cd organo/
           npm install
           
-          # Tentativa de aumentar o tempo de espera para evitar CONNECTION_REFUSED
+          echo "Iniciando o servidor em background..."
+          # Inicia o servidor em background. O log mostra que a URL é http://localhost:3000
           npm start &
+
+          # -- CORREÇÃO CRÍTICA: Aguardar a porta 3000 ficar ativa --
+          # Usa 'timeout 60s' e 'bash -c' para tentar se conectar à porta 3000 
+          # repetidamente (via netcat 'nc') até que esteja aberta ou o tempo acabe.
+          echo "Aguardando o servidor ficar acessível na porta 3000..."
+          timeout 60s bash -c 'while ! nc -z localhost 3000; do sleep 1; done'
           
-          echo "Aguardando 30 segundos para o servidor iniciar completamente..."
-          sleep 30s # Aumentado para 30s como medida de segurança
+          if [ $? -ne 0 ]; then
+            echo "Erro: O servidor não iniciou na porta 3000 dentro de 60 segundos."
+            exit 1
+          fi
+          echo "Servidor iniciado e porta 3000 acessível. Prosseguindo com os testes."
 
       - name: Instalar Dependências do Robot Framework
         run: |
@@ -48,8 +58,8 @@ jobs:
         run: |
           robot -d ./test_results ./testes/
         env:
-          BASE_URL: http://localhost:3000/
-
+          BASE_URL: http://localhost:3000/ 
+          
       - name: Upload dos Artefatos (Relatórios)
         uses: actions/upload-artifact@v4
         if: always()
