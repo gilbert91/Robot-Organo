@@ -1,0 +1,38 @@
+ Automação Robot Framework - Aplicação Organo
+
+Este guia detalha os passos para configurar o ambiente e executar os testes de automação do Robot Framework para a aplicação organo localmente.
+
+ Pré-requisitos
+
+Para rodar este projeto, você precisa ter instalado:
+
+Node.js (v18 ou superior): Necessário para rodar a aplicação React (organo).
+
+Python (v3.10 ou superior): Necessário para rodar o Robot Framework.
+
+Terminal Compatível com Bash: Recomenda-se usar Git Bash, WSL, ou um terminal Linux/macOS, pois comandos como npm start & e o health check (nc) são nativos ou mais estáveis nesses ambientes.
+
+Configuração Inicial do Ambiente
+- Set-ExecutionPolicy RemoteSigned -Scope Process
+- .\run_tests.ps1
+
+Execute os comandos abaixo na raiz do seu projeto para preparar tanto a aplicação quanto o ambiente de testes.
+
+$env:PORT="3000" 
+
+cd organo/
+npm install
+npx browserslist@latest --update-db --y
+
+Start-Process npm -ArgumentList "start"
+Start-Sleep -Seconds 15
+
+cd ..
+
+python -m pip install --upgrade pip
+python -m pip install robotframework robotframework-seleniumlibrary robotframework-faker
+
+$env:BASE_URL="http://localhost:3000/"
+
+robot -d ./test_results ./testes/
+

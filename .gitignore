@@ -1,0 +1,29 @@
+# Exclusões solicitadas
+*.html
+*.xml
+*.png
+
+# Exclusões de Node.js (Ambiente da Aplicação)
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.parcel-cache
+
+# Exclusões de Python/Robot Framework
+# Diretório de cache do Python
+__pycache__/
+*.pyc
+
+# Ambientes virtuais do Python
+.venv
+venv/
+env/
+
+# Resultados de testes do Robot Framework
+# Este é o diretório que você usa no comando 'robot -d ./test_results'
+test_results/
+
+# Arquivos de log/cache do sistema operacional
+.DS_Store # macOS
+Thumbs.db # Windows
