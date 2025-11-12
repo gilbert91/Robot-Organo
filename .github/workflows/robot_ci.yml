@@ -1,6 +1,5 @@
 name: Robot Framework CI/CD
 
-# Dispara o workflow em push e pull requests para as branches principais
 on:
   push:
     branches: [ master, develop ]
@@ -15,11 +14,10 @@ jobs:
       - name: Checkout do Código
         uses: actions/checkout@v4
         
-      # --- PASSO NOVO: CONFIGURAR NODE.JS (CRUCIAL) ---
       - name: Configurar Node.js (Para Aplicação Organo)
         uses: actions/setup-node@v4
         with:
-          node-version: '18' # Use uma versão LTS estável
+          node-version: '18' 
           
       - name: Configurar Python
         uses: actions/setup-python@v5
@@ -50,7 +48,7 @@ jobs:
         run: |
           robot -d ./test_results ./testes/
         env:
-          BASE_URL: http://localhost:3001/
+          BASE_URL: http://localhost:3000/
 
       - name: Upload dos Artefatos (Relatórios)
         uses: actions/upload-artifact@v4
