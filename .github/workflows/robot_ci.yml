@@ -31,32 +31,33 @@ jobs:
           npm install
           
           echo "Iniciando o servidor em background..."
-          # Inicia o servidor em background. O log mostra que a URL é http://localhost:3000
+          # Inicia o servidor React em background
           npm start &
 
-          # -- CORREÇÃO CRÍTICA: Aguardar a porta 3000 ficar ativa --
-          # Usa 'timeout 60s' e 'bash -c' para tentar se conectar à porta 3000 
-          # repetidamente (via netcat 'nc') até que esteja aberta ou o tempo acabe.
-          echo "Aguardando o servidor ficar acessível na porta 3000..."
+          # CORREÇÃO PRINCIPAL: Health Check Robusto
+          # Espera ativa e verifica a porta 3000. Timeout de 60s
+          echo "Aguardando o servidor ficar acessível na porta 3000 (máx 60s)..."
           timeout 60s bash -c 'while ! nc -z localhost 3000; do sleep 1; done'
           
           if [ $? -ne 0 ]; then
-            echo "Erro: O servidor não iniciou na porta 3000 dentro de 60 segundos."
+            echo "Erro: O servidor não iniciou na porta 3000 dentro de 60 segundos. Falha no teste."
             exit 1
           fi
           echo "Servidor iniciado e porta 3000 acessível. Prosseguindo com os testes."
-
+          # O 'cd organo/' é revertido automaticamente quando este 'run' termina
+          
       - name: Instalar Dependências do Robot Framework
         run: |
+          # Usando 'python -m pip' é a melhor prática
           python -m pip install --upgrade pip
-          pip install robotframework robotframework-seleniumlibrary robotframework-faker
+          python -m pip install robotframework robotframework-seleniumlibrary robotframework-faker
           
       - name: Executar Testes Robot
         run: |
           robot -d ./test_results ./testes/
         env:
           BASE_URL: http://localhost:3000/ 
-          
+
       - name: Upload dos Artefatos (Relatórios)
         uses: actions/upload-artifact@v4
         if: always()
