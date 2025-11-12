@@ -1,0 +1,65 @@
+name: Robot Framework CI/CD
+
+# Dispara o workflow em push e pull requests para as branches principais
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  robot_test_execution:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+        
+      - name: Configurar Python e Node.js
+        # Prepara o ambiente para rodar Python e Node.js/NPM
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          
+      - name: Instalar Dependências da Aplicação (organo) e Iniciar o Servidor
+        run: |
+          echo "Acessando o diretório da aplicação e instalando Node/NPM..."
+          # Navega para a pasta da aplicação
+          cd organo/
+          # Instala as dependências do projeto Node.js
+          npm install
+          
+          # Inicia o servidor Node.js em background (&) na porta 3001
+          npm start &
+          
+          echo "Aguardando 10 segundos para o servidor iniciar completamente..."
+          # Tempo de espera para o servidor estabilizar (ajuste se necessário)
+          sleep 10s 
+
+      - name: Instalar Dependências do Robot Framework
+        run: |
+          python -m pip install --upgrade pip
+          # Instala o Robot Framework e o SeleniumLibrary
+          pip install robotframework robotframework-seleniumlibrary robotframework-faker
+          
+      - name: Criar Diretório de Resultados
+        run: mkdir -p test_results
+
+      - name: Executar Testes Robot
+        # O caminho de execução é ajustado para a sua pasta 'testes/'
+        run: |
+          # O comando irá buscar 'preenchimento_correto.robot' e 'preenchimento_incorreto.robot'
+          # dentro da pasta './testes/'
+          robot -d ./test_results ./testes/
+        env:
+          # Variável de ambiente para a URL, garantindo que o Robot saiba onde testar
+          BASE_URL: http://localhost:3001/
+
+      - name: Upload dos Artefatos (Relatórios)
+        # Salva os relatórios (log.html e report.html) mesmo se os testes falharem
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: robot-reports
+          path: test_results/
+          retention-days: 5

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.3.2 (Python 3.8.5 on win32)" generated="2025-11-11T20:23:15.828335" rpa="false" schemaversion="5">
+<suite id="s1" name="Preenchimento Correto" source="c:\Users\MagnaTI\Documents\alura\Projetos\curso-robot\testes\preenchimento_correto.robot">
+<test id="s1-t1" name="Verificar se ao preencher os campos do formulario corretamente os dados são inseridos na lista e se um novo card é criado no time esperado" line="7">
+<kw name="Dado que eu acesse o organo" owner="setup_teardown" type="SETUP">
+<kw name="Open Browser" owner="SeleniumLibrary">
+<msg time="2025-11-11T20:23:16.747819" level="INFO">Opening browser 'Chrome' to base url 'http://localhost:3001/'.</msg>
+<msg time="2025-11-11T20:23:21.207443" level="INFO" html="true">&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td colspan="3"&gt;&lt;a href="selenium-screenshot-5.png"&gt;&lt;img src="selenium-screenshot-5.png" width="800px"&gt;&lt;/a&gt;</msg>
+<msg time="2025-11-11T20:23:21.207443" level="FAIL">WebDriverException: Message: unknown error: net::ERR_CONNECTION_REFUSED
+  (Session info: chrome=142.0.7444.60)
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7864ea235
+	0x7ff786242650
+	0x7ff785fd16dd
+	0x7ff785fce228
+	0x7ff785fbeba9
+	0x7ff785fc09d7
+	0x7ff785fbf160
+	0x7ff785fbe917
+	0x7ff785fbe5db
+	0x7ff785fbc145
+	0x7ff785fbc9dc
+	0x7ff785fd59ea
+	0x7ff78607c8be
+	0x7ff786052b0a
+	0x7ff78607baba
+	0x7ff78601b0ed
+	0x7ff78601bf63
+	0x7ff786515d60
+	0x7ff78650fe8a
+	0x7ff786531005
+	0x7ff78625d73e
+	0x7ff786264e3f
+	0x7ff78624b7e4
+	0x7ff78624b99f
+	0x7ff786231908
+	0x7ff8d6d7e8d7
+	0x7ff8d8c4c53c
+</msg>
+<arg>${URL}</arg>
+<arg>browser=Chrome</arg>
+<doc>Opens a new browser instance to the optional ``url``.</doc>
+<status status="FAIL" start="2025-11-11T20:23:16.747819" elapsed="4.459624">WebDriverException: Message: unknown error: net::ERR_CONNECTION_REFUSED
+  (Session info: chrome=142.0.7444.60)
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7864ea235
+	0x7ff786242650
+	0x7ff785fd16dd
+	0x7ff785fce228
+	0x7ff785fbeba9
+	0x7ff785fc09d7
+	0x7ff785fbf160
+	0x7ff785fbe917
+	0x7ff785fbe5db
+	0x7ff785fbc145
+	0x7ff785fbc9dc
+	0x7ff785fd59ea
+	0x7ff78607c8be
+	0x7ff786052b0a
+	0x7ff78607baba
+	0x7ff78601b0ed
+	0x7ff78601bf63
+	0x7ff786515d60
+	0x7ff78650fe8a
+	0x7ff786531005
+	0x7ff78625d73e
+	0x7ff786264e3f
+	0x7ff78624b7e4
+	0x7ff78624b99f
+	0x7ff786231908
+	0x7ff8d6d7e8d7
+	0x7ff8d8c4c53c
+</status>
+</kw>
+<kw name="Maximize Browser Window" owner="SeleniumLibrary">
+<doc>Maximizes current browser window.</doc>
+<status status="NOT RUN" start="2025-11-11T20:23:21.207443" elapsed="0.000000"/>
+</kw>
+<status status="FAIL" start="2025-11-11T20:23:16.744790" elapsed="4.462653">WebDriverException: Message: unknown error: net::ERR_CONNECTION_REFUSED
+  (Session info: chrome=142.0.7444.60)
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7864ea235
+	0x7ff786242650
+	0x7ff785fd16dd
+	0x7ff785fce228
+	0x7ff785fbeba9
+	0x7ff785fc09d7
+	0x7ff785fbf160
+	0x7ff785fbe917
+	0x7ff785fbe5db
+	0x7ff785fbc145
+	0x7ff785fbc9dc
+	0x7ff785fd59ea
+	0x7ff78607c8be
+	0x7ff786052b0a
+	0x7ff78607baba
+	0x7ff78601b0ed
+	0x7ff78601bf63
+	0x7ff786515d60
+	0x7ff78650fe8a
+	0x7ff786531005
+	0x7ff78625d73e
+	0x7ff786264e3f
+	0x7ff78624b7e4
+	0x7ff78624b99f
+	0x7ff786231908
+	0x7ff8d6d7e8d7
+	0x7ff8d8c4c53c
+</status>
+</kw>
+<kw name="Fechar o navegador" owner="setup_teardown" type="TEARDOWN">
+<kw name="Close Browser" owner="SeleniumLibrary">
+<doc>Closes the current browser.</doc>
+<status status="PASS" start="2025-11-11T20:23:21.223570" elapsed="2.326219"/>
+</kw>
+<status status="PASS" start="2025-11-11T20:23:21.222048" elapsed="2.327741"/>
+</kw>
+<status status="FAIL" start="2025-11-11T20:23:16.742798" elapsed="6.806991">Setup failed:
+WebDriverException: Message: unknown error: net::ERR_CONNECTION_REFUSED
+  (Session info: chrome=142.0.7444.60)
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x7ff7864ea235
+	0x7ff786242650
+	0x7ff785fd16dd
+	0x7ff785fce228
+	0x7ff785fbeba9
+	0x7ff785fc09d7
+	0x7ff785fbf160
+	0x7ff785fbe917
+	0x7ff785fbe5db
+	0x7ff785fbc145
+	0x7ff785fbc9dc
+	0x7ff785fd59ea
+	0x7ff78607c8be
+	0x7ff786052b0a
+	0x7ff78607baba
+	0x7ff78601b0ed
+	0x7ff78601bf63
+	0x7ff786515d60
+	0x7ff78650fe8a
+	0x7ff786531005
+	0x7ff78625d73e
+	0x7ff786264e3f
+	0x7ff78624b7e4
+	0x7ff78624b99f
+	0x7ff786231908
+	0x7ff8d6d7e8d7
+	0x7ff8d8c4c53c
+</status>
+</test>
+<status status="FAIL" start="2025-11-11T20:23:15.841410" elapsed="7.711794"/>
+</suite>
+<statistics>
+<total>
+<stat pass="0" fail="1" skip="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat name="Preenchimento Correto" id="s1" pass="0" fail="1" skip="0">Preenchimento Correto</stat>
+</suite>
+</statistics>
+<errors>
+</errors>
+</robot>
