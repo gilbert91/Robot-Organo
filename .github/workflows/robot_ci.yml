@@ -29,7 +29,7 @@ jobs:
           # Instala as dependências do projeto Node.js
           npm install
           
-          # Inicia o servidor Node.js em background (&) na porta 3001
+          # Inicia o servidor Node.js em background (&) na porta 3000
           npm start &
           
           echo "Aguardando 20 segundos para o servidor iniciar completamente (CORRIGIDO PARA EVITAR ERR_CONNECTION_REFUSED)..."
@@ -51,7 +51,7 @@ jobs:
           # dentro da pasta './testes/'
           robot -d ./test_results ./testes/
         env:
-          BASE_URL: http://localhost:3001/
+          BASE_URL: http://localhost:3000/
 
       - name: Upload dos Artefatos (Relatórios)
         uses: actions/upload-artifact@v4
