@@ -31,58 +31,97 @@ jobs:
           npm install
           npx browserslist@latest --update-db --yes
           
-      - name: Iniciar Servidor React em Background
-        run: |
-          cd organo/
-          npm start &
-          echo "Servidor iniciado em background"
-        
-      - name: Aguardar Servidor Ficar Pronto
-        run: |
-          echo "Aguardando o servidor React ficar completamente disponível..."
-          timeout 120s bash -c '
-            until curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 | grep -q "200\|301\|302"; do
-              echo "Aguardando resposta HTTP do servidor... ($(date +%T))"
-              sleep 2
-            done
-          '
-          
-          if [ $? -ne 0 ]; then
-            echo "ERRO: Servidor não respondeu em 120 segundos"
-            exit 1
-          fi
-          
-          echo "✓ Servidor está respondendo! Aguardando mais 5s para estabilizar..."
-          sleep 5
-          
-      - name: Instalar Dependências do Robot Framework
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install robotframework robotframework-seleniumlibrary robotframework-faker
-          
       - name: Instalar Chrome e ChromeDriver
         run: |
           # Instala Chrome
           wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt-get install -f -y
           
-          # Instala ChromeDriver
-          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
-          CHROMEDRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_VERSION%%.*}")
+          # Instala ChromeDriver compatível
+          CHROME_MAJOR_VERSION=$(google-chrome --version | grep -oP '\d+' | head -1)
+          echo "Chrome major version: $CHROME_MAJOR_VERSION"
+          
+          CHROMEDRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_MAJOR_VERSION}")
+          echo "ChromeDriver version: $CHROMEDRIVER_VERSION"
+          
           wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROMEDRIVER_VERSION}/linux64/chromedriver-linux64.zip"
           unzip -q chromedriver-linux64.zip
           sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
           sudo chmod +x /usr/local/bin/chromedriver
           
-          echo "Chrome version: $(google-chrome --version)"
-          echo "ChromeDriver version: $(chromedriver --version)"
+          echo "✓ Chrome version: $(google-chrome --version)"
+          echo "✓ ChromeDriver version: $(chromedriver --version)"
+          
+      - name: Iniciar Servidor React e Aguardar
+        run: |
+          cd organo/
+          
+          # Inicia o servidor em background e redireciona logs
+          nohup npm start > server.log 2>&1 &
+          SERVER_PID=$!
+          echo "Servidor iniciado com PID: $SERVER_PID"
+          
+          # Salva o PID para possível cleanup
+          echo $SERVER_PID > server.pid
+          
+          # Aguarda o servidor ficar pronto (até 180 segundos)
+          echo "Aguardando servidor na porta 3001..."
+          for i in {1..90}; do
+            if curl -s -f http://localhost:3001 > /dev/null 2>&1; then
+              echo "✓ Servidor respondeu com sucesso após $((i*2)) segundos"
+              break
+            fi
+            
+            if [ $i -eq 90 ]; then
+              echo "✗ ERRO: Servidor não iniciou após 180 segundos"
+              echo "=== Últimas 50 linhas do log do servidor ==="
+              tail -n 50 server.log
+              kill $SERVER_PID 2>/dev/null || true
+              exit 1
+            fi
+            
+            echo "Tentativa $i/90 - Aguardando 2s..."
+            sleep 2
+          done
+          
+          # Tempo adicional para estabilização
+          echo "Aguardando 10s adicionais para estabilização..."
+          sleep 10
+          
+          # Verifica se o processo ainda está rodando
+          if ! kill -0 $SERVER_PID 2>/dev/null; then
+            echo "✗ ERRO: Processo do servidor morreu!"
+            echo "=== Log completo do servidor ==="
+            cat server.log
+            exit 1
+          fi
+          
+          echo "✓ Servidor está rodando e estável"
+          
+      - name: Instalar Dependências do Robot Framework
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install robotframework robotframework-seleniumlibrary robotframework-faker
           
       - name: Executar Testes Robot
         run: |
+          # Verifica uma última vez se o servidor está acessível
+          if ! curl -s -f http://localhost:3000 > /dev/null; then
+            echo "✗ ERRO: Servidor não está acessível antes dos testes!"
+            exit 1
+          fi
+          
+          echo "✓ Servidor confirmado acessível. Iniciando testes..."
           robot -d ./test_results ./testes/
         env:
           BASE_URL: http://localhost:3000/
 
+      - name: Logs do Servidor (se falhar)
+        if: failure()
+        run: |
+          echo "=== Log do Servidor React ==="
+          cat organo/server.log || echo "Arquivo de log não encontrado"
+          
       - name: Upload dos Artefatos (Relatórios)
         uses: actions/upload-artifact@v4
         if: always()
@@ -90,3 +129,12 @@ jobs:
           name: robot-reports
           path: test_results/
           retention-days: 5
+          
+      - name: Cleanup - Parar Servidor
+        if: always()
+        run: |
+          if [ -f organo/server.pid ]; then
+            SERVER_PID=$(cat organo/server.pid)
+            kill $SERVER_PID 2>/dev/null || true
+            echo "Servidor parado"
+          fi
