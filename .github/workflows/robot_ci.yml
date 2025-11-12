@@ -24,43 +24,64 @@ jobs:
         with:
           python-version: '3.10'
           
-      - name: Instalar Dependências da Aplicação (organo) e Iniciar o Servidor
+      - name: Instalar Dependências da Aplicação (organo)
         run: |
-          echo "Acessando o diretório da aplicação e instalando Node/NPM..."
+          echo "Instalando dependências do Node..."
           cd organo/
           npm install
-
-          # 1. CORREÇÃO DE PROMPT (y/n)
-          # Adiciona a flag --yes para confirmar automaticamente a atualização do browserslist
-          echo "Atualizando browserslist para evitar o prompt de confirmação (y/n)..."
           npx browserslist@latest --update-db --yes
           
-          echo "Iniciando o servidor em background..."
-          # Inicia o servidor React em background
+      - name: Iniciar Servidor React em Background
+        run: |
+          cd organo/
           npm start &
-
-          # 2. CORREÇÃO DE CONEXÃO (ERR_CONNECTION_REFUSED)
-          # Health Check Robusto: Espera ativa e verifica a porta 3000 usando netcat (nc).
-          echo "Aguardando o servidor ficar acessível na porta 3000 (máx 60s)..."
-          timeout 60s bash -c 'while ! nc -z localhost 3000; do sleep 1; done'
+          echo "Servidor iniciado em background"
+        
+      - name: Aguardar Servidor Ficar Pronto
+        run: |
+          echo "Aguardando o servidor React ficar completamente disponível..."
+          timeout 120s bash -c '
+            until curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 | grep -q "200\|301\|302"; do
+              echo "Aguardando resposta HTTP do servidor... ($(date +%T))"
+              sleep 2
+            done
+          '
           
           if [ $? -ne 0 ]; then
-            echo "Erro: O servidor não iniciou na porta 3000 dentro de 60 segundos. Falha no teste."
+            echo "ERRO: Servidor não respondeu em 120 segundos"
             exit 1
           fi
-          echo "Servidor iniciado e porta 3000 acessível. Prosseguindo com os testes."
+          
+          echo "✓ Servidor está respondendo! Aguardando mais 5s para estabilizar..."
+          sleep 5
           
       - name: Instalar Dependências do Robot Framework
         run: |
-          # Usando 'python -m pip' é a melhor prática
           python -m pip install --upgrade pip
           python -m pip install robotframework robotframework-seleniumlibrary robotframework-faker
+          
+      - name: Instalar Chrome e ChromeDriver
+        run: |
+          # Instala Chrome
+          wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt-get install -f -y
+          
+          # Instala ChromeDriver
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
+          CHROMEDRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_${CHROME_VERSION%%.*}")
+          wget -q "https://storage.googleapis.com/chrome-for-testing-public/${CHROMEDRIVER_VERSION}/linux64/chromedriver-linux64.zip"
+          unzip -q chromedriver-linux64.zip
+          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
+          
+          echo "Chrome version: $(google-chrome --version)"
+          echo "ChromeDriver version: $(chromedriver --version)"
           
       - name: Executar Testes Robot
         run: |
           robot -d ./test_results ./testes/
         env:
-          BASE_URL: http://localhost:3000/ 
+          BASE_URL: http://localhost:3000/
 
       - name: Upload dos Artefatos (Relatórios)
         uses: actions/upload-artifact@v4
