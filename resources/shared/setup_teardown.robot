@@ -2,11 +2,16 @@
 Resource    ../main.robot
 
 *** Variables ***
-${URL}                    http://localhost:3001/
+${URL}                              http://localhost:3001/
 
 *** Keywords ***
 Dado que eu acesse o organo
-    Open Browser    ${URL}     browser=Chrome
+    ${options}=    Evaluate    sys.modules['selenium.webdriver'].ChromeOptions()    sys, selenium.webdriver
+    Call Method    ${options}    add_argument    --headless
+    Call Method    ${options}    add_argument    --no-sandbox
+    Call Method    ${options}    add_argument    --disable-dev-shm-usage
+    
+    Open Browser    ${URL}    browser=Chrome    options=${options}
     Maximize Browser Window
 
 Fechar o navegador
